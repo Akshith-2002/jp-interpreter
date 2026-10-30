@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Interpreter</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Interpreter">
+  <meta name="theme-color" content="#0f1115">
+  <link rel="preconnect" href="https://api.anthropic.com" crossorigin>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">EN <span class="swap">⇄</span> 日本語</div>
+    <div class="top-actions">
+      <button id="btn-show" class="icon-btn" aria-label="Show to guest">Show</button>
+      <button id="btn-clear" class="icon-btn" aria-label="Clear conversation">Clear</button>
+      <button id="btn-settings" class="icon-btn" aria-label="Settings">⚙︎</button>
+    </div>
+  </header>
+
+  <main id="log" class="log" aria-live="polite">
+    <div id="empty" class="empty">
+      <p><b>Tap a button and speak.</b></p>
+      <p>Blue: you speak English → Japanese is spoken aloud.</p>
+      <p>Red: guest speaks Japanese → English is spoken aloud.</p>
+      <p class="ja">赤いボタンを押して日本語で話してください。</p>
+    </div>
+  </main>
+
+  <form id="type-form" class="type-row" autocomplete="off">
+    <button type="button" id="type-lang" class="type-lang">EN</button>
+    <input id="type-input" type="text" enterkeyhint="send" placeholder="Type or use keyboard mic…">
+    <button type="submit" class="type-send" aria-label="Translate">➤</button>
+  </form>
+
+  <footer class="mics">
+    <button id="mic-en" class="mic mic-en"><span class="mic-ico">🎤</span><span class="mic-label">English</span><span class="mic-sub">I speak</span></button>
+    <button id="mic-ja" class="mic mic-ja"><span class="mic-ico">🎤</span><span class="mic-label">日本語</span><span class="mic-sub">相手が話す</span></button>
+  </footer>
+
+  <div id="listen" class="overlay hidden">
+    <div class="listen-box">
+      <div class="pulse"></div>
+      <div id="listen-title" class="listen-title">Listening…</div>
+      <div id="listen-text" class="listen-text"></div>
+      <div class="listen-actions">
+        <button id="listen-cancel" class="btn ghost">Cancel</button>
+        <button id="listen-done" class="btn primary">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="show" class="overlay show hidden">
+    <div id="show-text" class="show-text"></div>
+    <div class="show-actions">
+      <button id="show-flip" class="btn ghost">Flip ⟲</button>
+      <button id="show-speak" class="btn ghost">🔊</button>
+      <button id="show-close" class="btn primary">Close</button>
+    </div>
+  </div>
+
+  <div id="settings" class="overlay hidden">
+    <div class="sheet">
+      <h2>Settings</h2>
+      <label>Anthropic API key
+        <input id="set-key" type="password" placeholder="sk-ant-…" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </label>
+      <label class="row">Speak translations aloud
+        <input id="set-speak" type="checkbox">
+      </label>
+      <label>Speech speed <span id="set-rate-val"></span>
+        <input id="set-rate" type="range" min="0.6" max="1.3" step="0.05">
+      </label>
+      <p id="set-status" class="status"></p>
+      <div class="sheet-actions">
+        <button id="set-test" class="btn ghost">Test</button>
+        <button id="set-save" class="btn primary">Save</button>
+      </div>
+      <p class="hint">Mic not working? iPhone Settings → General → Keyboard → turn on <b>Enable Dictation</b>, and allow Microphone for Safari.</p>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

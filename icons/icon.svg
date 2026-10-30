@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#0f1115"/>
+  <path d="M60 120a40 40 0 0 1 40-40h190a40 40 0 0 1 40 40v110a40 40 0 0 1-40 40h-120l-60 50v-50h-10a40 40 0 0 1-40-40z" fill="#2f6fed"/>
+  <text x="195" y="205" font-family="Helvetica, Arial, sans-serif" font-size="96" font-weight="700" fill="#fff" text-anchor="middle">EN</text>
+  <path d="M452 270a40 40 0 0 0-40-40h-190a40 40 0 0 0-40 40v110a40 40 0 0 0 40 40h120l60 50v-50h10a40 40 0 0 0 40-40z" fill="#e0413a"/>
+  <text x="317" y="362" font-family="Hiragino Sans, Hiragino Kaku Gothic ProN, sans-serif" font-size="104" font-weight="700" fill="#fff" text-anchor="middle">日本</text>
+</svg>
