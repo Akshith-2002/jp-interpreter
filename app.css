@@ -116,4 +116,6 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .status { min-height: 22px; font-size: 15px; }
 .status.ok { color: var(--ok); }
 .status.bad { color: #fca5a5; }
-.hint { color: var(--muted); font-size: 13px; margin: 14px 0 0; }
+.help-text { white-space: pre-wrap; font-size: 17px; margin: 0 0 18px; }
+.sheet-actions.wrap { flex-wrap: wrap; }
+.hint {color: var(--muted); font-size: 13px; margin: 14px 0 0; }

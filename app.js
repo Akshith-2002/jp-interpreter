@@ -164,21 +164,43 @@ async function handle(text, from) {
 // ---------- Speech input ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
-let cancelled = false;
+let session = null;
+
+const standalone = navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+let helpLang = 'en';
+
+function useKeyboard(lang) {
+  setTypeLang(lang);
+  const input = $('type-input');
+  input.placeholder = lang === 'ja' ? '🌐で日本語キーボード → 🎤' : 'Tap the 🎤 on the keyboard…';
+  input.focus();
+}
+
+function showMicHelp(lang, error) {
+  helpLang = lang;
+  let msg;
+  if (error === 'no-speech') {
+    msg = lang === 'ja' ? '聞き取れませんでした。もう一度どうぞ。' : "Didn't catch that. Tap the button and try again.";
+  } else if (standalone) {
+    msg = 'iPhone blocks voice input when this app is opened from the Home Screen icon.\n\nFix: tap “Copy link”, open Safari, paste it and use the app there (voice works in Safari). Or tap “Use keyboard” and press the 🎤 on the keyboard.';
+  } else if (error === 'not-allowed' || error === 'service-not-allowed') {
+    msg = 'Voice input is turned off.\n\niPhone Settings → General → Keyboard → turn ON “Enable Dictation”. Also Settings → Apps → Safari → Microphone → Allow. Then reload this page.';
+  } else {
+    msg = `Voice input failed${error ? ` (${error})` : ''}.\n\nTry again, or tap “Use keyboard” and press the 🎤 on the keyboard.`;
+  }
+  $('help-text').textContent = msg;
+  $('help-copy').classList.toggle('hidden', !standalone || error === 'no-speech');
+  $('mic-help').classList.remove('hidden');
+}
 
 function startListening(lang) {
-  unlockSpeech();
   window.speechSynthesis?.cancel();
-  if (!SR) {
-    setTypeLang(lang);
-    $('type-input').placeholder = lang === 'ja' ? '日本語で入力・音声入力…' : 'Type or tap the keyboard mic…';
-    $('type-input').focus();
-    return;
-  }
-  cancelled = false;
+  if (!SR) return useKeyboard(lang);
+  let cancelled = false;
   let finalText = '';
   let interim = '';
   let error = '';
+  let heard = false;
   rec = new SR();
   rec.lang = LANGS[lang].code;
   rec.interimResults = true;
@@ -191,6 +213,28 @@ function startListening(lang) {
   $('listen-text').textContent = '';
   $('listen').classList.remove('hidden');
 
+  const thisRec = rec;
+  let done = false;
+  let timer = null;
+  // Recognition on iOS can fail to start, or start and then never deliver results or end.
+  // These timers make sure the screen never just hangs.
+  const arm = (ms, fn) => { clearTimeout(timer); timer = setTimeout(fn, ms); };
+  const finish = () => {
+    if (done) return;
+    done = true;
+    clearTimeout(timer);
+    $('listen').classList.add('hidden');
+    if (rec === thisRec) { rec = null; session = null; }
+    try { thisRec.abort(); } catch {}
+    const text = (finalText + interim).trim();
+    if (cancelled) return;
+    if (text) return handle(text, lang);
+    showMicHelp(lang, error || (heard ? 'no-speech' : 'did-not-start'));
+  };
+  // Stop politely, and if iOS never reports the end, finish anyway.
+  const stopSoon = () => { try { thisRec.stop(); } catch {} arm(600, finish); };
+  session = { stop: stopSoon, cancel: () => { cancelled = true; finish(); } };
+
   rec.onresult = (e) => {
     finalText = '';
     interim = '';
@@ -200,25 +244,34 @@ function startListening(lang) {
       else interim += r[0].transcript;
     }
     $('listen-text').textContent = finalText + interim;
+    if (finalText) stopSoon(); // iOS marked the phrase complete
+    else arm(1200, stopSoon); // speaker paused → send it
   };
+  rec.onaudiostart = () => { heard = true; arm(7000, stopSoon); }; // nobody spoke
   rec.onerror = (e) => { error = e.error; };
-  rec.onend = () => {
-    $('listen').classList.add('hidden');
-    rec = null;
-    const text = (finalText + interim).trim();
-    if (cancelled) return;
-    if (text) return handle(text, lang);
-    if (error === 'not-allowed' || error === 'service-not-allowed') {
-      alert('Microphone / speech recognition is blocked.\n\nOn iPhone: Settings → General → Keyboard → Enable Dictation ON, and allow Microphone for Safari. Then try again.');
-    }
-  };
-  try { rec.start(); } catch { $('listen').classList.add('hidden'); rec = null; }
+  rec.onend = finish;
+  arm(3000, () => { if (!heard) { error = error || 'did-not-start'; finish(); } });
+  try {
+    rec.start();
+  } catch (err) {
+    error = err?.name || 'start-failed';
+    finish();
+  }
 }
+
+$('help-keyboard').onclick = () => { $('mic-help').classList.add('hidden'); useKeyboard(helpLang); };
+$('help-close').onclick = () => $('mic-help').classList.add('hidden');
+$('help-copy').onclick = async () => {
+  try { await navigator.clipboard.writeText(location.href); $('help-copy').textContent = 'Copied ✓'; } catch { prompt('Copy this link:', location.href); }
+};
+
+// Prime speech output on the first tap that isn't a mic button (audio during mic start can stall recognition on iOS).
+document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.mic')) unlockSpeech(); }, { capture: true });
 
 $('mic-en').onclick = () => startListening('en');
 $('mic-ja').onclick = () => startListening('ja');
-$('listen-done').onclick = () => rec?.stop();
-$('listen-cancel').onclick = () => { cancelled = true; rec?.abort(); $('listen').classList.add('hidden'); };
+$('listen-done').onclick = () => session?.stop();
+$('listen-cancel').onclick = () => session?.cancel();
 
 // ---------- Typing ----------
 function setTypeLang(lang) {
