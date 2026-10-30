@@ -183,6 +183,8 @@ function showMicHelp(lang, error) {
     msg = lang === 'ja' ? '聞き取れませんでした。もう一度どうぞ。' : "Didn't catch that. Tap the button and try again.";
   } else if (standalone) {
     msg = 'iPhone blocks voice input when this app is opened from the Home Screen icon.\n\nFix: tap “Copy link”, open Safari, paste it and use the app there (voice works in Safari). Or tap “Use keyboard” and press the 🎤 on the keyboard.';
+  } else if (error === 'network') {
+    msg = 'This browser blocks voice input (Brave and some others do).\n\nOn iPhone use Safari. On a computer use Chrome or Safari. Or tap “Use keyboard” and press the 🎤 on the keyboard.';
   } else if (error === 'not-allowed' || error === 'service-not-allowed') {
     msg = 'Voice input is turned off.\n\niPhone Settings → General → Keyboard → turn ON “Enable Dictation”. Also Settings → Apps → Safari → Microphone → Allow. Then reload this page.';
   } else {
