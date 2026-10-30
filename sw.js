@@ -1,5 +1,5 @@
 // Caches the app shell so it opens instantly; API calls always go to the network.
-const CACHE = 'interpreter-v2';
+const CACHE = 'interpreter-v3';
 const SHELL = ['./', 'index.html', 'app.css', 'app.js', 'vendor/anthropic.js', 'manifest.webmanifest', 'icons/icon-180.png'];
 
 self.addEventListener('install', (e) => {

@@ -315,6 +315,38 @@ $('btn-clear').onclick = () => {
   $('empty').classList.remove('hidden');
 };
 
+// ---------- Install ----------
+// Android / desktop Chrome offer a real install prompt; iOS needs the manual Share-sheet steps.
+let installPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installPrompt = e; });
+window.addEventListener('appinstalled', () => $('btn-install').classList.add('hidden'));
+
+$('btn-install').onclick = async () => {
+  if (installPrompt) {
+    installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null;
+    return;
+  }
+  const note = $('install-note');
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const safari = ios && !/CriOS|FxiOS|EdgiOS|OPiOS|Brave/.test(navigator.userAgent);
+  if (standalone) {
+    note.textContent = 'You opened this from a Home Screen icon set to “Open as Web App”, which blocks voice. Delete that icon, open the link in Safari, and add it again with the steps below.';
+  } else if (!ios) {
+    note.textContent = 'Open this link on the iPhone in Safari, then follow these steps.';
+  } else if (!safari) {
+    note.textContent = 'Open this link in Safari first. Other iPhone browsers can’t add it properly.';
+  }
+  note.classList.toggle('hidden', !note.textContent);
+  $('install-copy').textContent = 'Copy link';
+  $('install').classList.remove('hidden');
+};
+$('install-close').onclick = () => $('install').classList.add('hidden');
+$('install-copy').onclick = async () => {
+  try { await navigator.clipboard.writeText(location.href); $('install-copy').textContent = 'Copied ✓'; } catch { prompt('Copy this link:', location.href); }
+};
+
 // ---------- Settings ----------
 function openSettings() {
   $('set-key').value = settings.key;

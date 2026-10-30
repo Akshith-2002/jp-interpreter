@@ -19,6 +19,7 @@
   <header class="top">
     <div class="brand">EN <span class="swap">⇄</span> 日本語</div>
     <div class="top-actions">
+      <button id="btn-install" class="icon-btn install-btn" aria-label="Install app">Install</button>
       <button id="btn-show" class="icon-btn" aria-label="Show to guest">Show</button>
       <button id="btn-clear" class="icon-btn" aria-label="Clear conversation">Clear</button>
       <button id="btn-settings" class="icon-btn" aria-label="Settings">⚙︎</button>
@@ -65,6 +66,23 @@
         <button id="help-copy" class="btn ghost">Copy link</button>
         <button id="help-keyboard" class="btn ghost">Use keyboard</button>
         <button id="help-close" class="btn primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="install" class="overlay hidden">
+    <div class="sheet">
+      <h2>Install on iPhone</h2>
+      <p id="install-note" class="install-note hidden"></p>
+      <ol class="steps">
+        <li><span class="step-ico">⬆︎</span><div>In <b>Safari</b>, tap the <b>Share</b> button <span class="kbd">⬆︎</span> (bottom bar, or under <span class="kbd">⋯</span>).</div></li>
+        <li><span class="step-ico">＋</span><div>Scroll down and tap <b>Add to Home Screen</b>.</div></li>
+        <li class="warn"><span class="step-ico">⚠︎</span><div>Turn <b>OFF</b> “<b>Open as Web App</b>”. <span class="muted">Voice input only works when the icon opens in Safari.</span></div></li>
+        <li><span class="step-ico">✓</span><div>Tap <b>Add</b>. The <b>Interpreter</b> icon appears on the Home Screen.</div></li>
+      </ol>
+      <div class="sheet-actions wrap">
+        <button id="install-copy" class="btn ghost">Copy link</button>
+        <button id="install-close" class="btn primary">Got it</button>
       </div>
     </div>
   </div>
